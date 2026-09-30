@@ -427,10 +427,11 @@ if(wave%5===0&&!waveBossSpawned&&state==='play'){waveBossSpawned=true;spawn('B')
 comboT-=dt;if(comboT<=0)combo=0;if(P.shl&&!P.shr){P.shT-=dt;if(P.shT<=0)P.shr=true}
 // shoot
 P.fcd-=dt;
-if(P.fcd<=0&&E.length){let n=null,nd=1e9;for(const e of E){const d=(e.x-P.x)**2+(e.y-P.y)**2;if(d<nd){nd=d;n=e}}
-const a=Math.atan2(n.y-P.y,n.x-P.x);P.aim=a;P.fireFx=.16;P.recoil=.09;burst(P.x+Math.cos(a)*13,P.y+Math.sin(a)*13,Math.max(4,P.shots*3),'#ffffff',70);
-for(let i=0;i<P.shots;i++){const q=a+(i-(P.shots-1)/2)*.17;B.push({x:P.x+Math.cos(q)*10,y:P.y+Math.sin(q)*10,vx:Math.cos(q)*640,vy:Math.sin(q)*640,dmg:P.dmg,pr:P.pierce,l:1.1,hit:new Set(),h:STF[staff].h==null?(t*140+i*40)%360:STF[staff].h})}
-P.fcd=P.fr;snd(650+Math.random()*120,.05,'square',.012,.5)}
+if(P.fcd<=0&&E.length){let n=null,nd=Infinity;for(const e of E){if(e.dead)continue;const dx=e.x-P.x,dy=e.y-P.y,d=dx*dx+dy*dy;if(d<nd){nd=d;n=e}}
+if(n){const dist=Math.sqrt(nd);const a=Math.atan2(n.y-P.y,n.x-P.x);P.aim=a;P.fireFx=.16;P.recoil=.09;burst(P.x+Math.cos(a)*13,P.y+Math.sin(a)*13,Math.max(4,P.shots*3),'#ffffff',70);
+const life=Math.min(8,Math.max(1.1,dist/640+.35));
+for(let i=0;i<P.shots;i++){const q=a+(i-(P.shots-1)/2)*.17;B.push({x:P.x+Math.cos(q)*10,y:P.y+Math.sin(q)*10,vx:Math.cos(q)*640,vy:Math.sin(q)*640,dmg:P.dmg,pr:P.pierce,l:life,hit:new Set(),h:STF[staff].h==null?(t*140+i*40)%360:STF[staff].h})}
+P.fcd=P.fr;snd(650+Math.random()*120,.05,'square',.012,.5)}}
 // nova
 if(P.nova>0){P.novaCd-=dt;if(P.novaCd<=0){P.novaCd=Math.max(2.5,6-P.nova*.8);snd(140,.4,'sine',.09,3);R.push({x:P.x,y:P.y,r:10,max:150+P.nova*35,dmg:2+P.nova,hit:new Set()})}}
 for(const r of R){r.r+=440*dt;for(const e of E)if(!e.dead&&!r.hit.has(e)&&Math.abs(Math.hypot(e.x-r.x,e.y-r.y)-r.r)<e.r+10){r.hit.add(e);e.hp-=r.dmg;const a=Math.atan2(e.y-r.y,e.x-r.x);e.kx=Math.cos(a)*260;e.ky=Math.sin(a)*260;if(e.hp<=0)kill(e)}}
@@ -450,7 +451,7 @@ if(e.bt<=0){
 }
 if(Math.hypot(e.x-P.x,e.y-P.y)<e.r+P.r&&P.inv<=0){const kb=e.v>=20?150:500;e.kx=-Math.cos(a)*kb;e.ky=-Math.sin(a)*kb;if(hurt())return}}
 for(const b of EB){if(b.hm){const d=Math.atan2(P.y-b.y,P.x-b.x),sp=Math.hypot(b.vx,b.vy),c=Math.atan2(b.vy,b.vx),df=Math.atan2(Math.sin(d-c),Math.cos(d-c)),nn=c+df*Math.min(1,dt*1.6);b.vx=Math.cos(nn)*sp;b.vy=Math.sin(nn)*sp}b.x+=b.vx*dt;b.y+=b.vy*dt;b.l-=dt;if(Math.hypot(b.x-P.x,b.y-P.y)<P.r+5&&P.inv<=0){b.l=0;if(b.slow)P.slow=2.2;if(hurt())return}}
-EB=EB.filter(b=>b.l>0&&b.x>-20&&b.x<W+20&&b.y>-20&&b.y<H+20);
+EB=EB.filter(b=>b.l>0&&b.x>-40&&b.x<WORLD_W+40&&b.y>-40&&b.y<WORLD_H+40);
 for(const z of Z){z.t+=dt;if(z.t>z.d&&Math.hypot(P.x-z.x,P.y-z.y)<z.r+4){if(z.k)P.slow=.5;else if(P.inv<=0&&hurt())return}}Z=Z.filter(z=>z.t<z.d+z.l);
 E=E.filter(e=>!e.dead);if(chestQ){const c=chestQ;chestQ=0;chest(c);return}
 // gems
